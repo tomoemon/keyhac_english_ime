@@ -86,11 +86,14 @@ sign_name_key_dict = {
     #"Asterisk": "*",
     #"Atmark": "@",
     #"Caret": "^",
+    # 特殊キー
     "Space": "Space",
     "Back": "Back",
     "Enter": "Enter",
     "Esc": "Esc",
-    # シフト押下時の対応
+    "Tab": "Tab",
+    "S-Tab": "S-Tab",
+    # 記号系
     "S-1": "!",
     "S-2": "\"",
     "S-3": "#",
@@ -140,7 +143,7 @@ def setup_list_window(window):
 def setup(keymap):
     ime = None
 
-    def update_list():
+    def update_candidates():
         if keymap.list_window:
             candidates = ime.candidates
             input_string = "".join(ime.inputs)
@@ -179,7 +182,7 @@ def setup(keymap):
             input_key([key])
             return
         ime.input(key, max_distance=2, expand=2)
-        update_list()
+        update_candidates()
 
     def input_candidate(inputs, candidates, end):
         if not inputs:
@@ -196,7 +199,7 @@ def setup(keymap):
             return
         input_candidate(ime.inputs, ime.candidates, ["Space"])
         ime.reset()
-        update_list()
+        update_candidates()
 
     def hook_enter():
         if not ime:
@@ -204,26 +207,21 @@ def setup(keymap):
             return
         input_candidate(ime.inputs, ime.candidates, ["Enter"])
         ime.reset()
-        update_list()
+        update_candidates()
 
     def hook_backspace():
-        if not ime:
+        if not ime or not ime.inputs:
             input_key(["Back"])
             return
-        if not ime.inputs:
-            input_key(["Back"])
-        else:
-            ime.back()
-        update_list()
+        ime.back()
+        update_candidates()
 
     def hook_escape():
-        if not ime:
+        if not ime or not ime.inputs:
             input_key(["Esc"])
             return
-        if not ime.inputs:
-            input_key(["Esc"])
         ime.reset()
-        update_list()
+        update_candidates()
 
     def input_key(input_list):
         result = []
