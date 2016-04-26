@@ -111,7 +111,7 @@ class EnglishIme:
         ・letter が記号である
         ・直前の最良候補よりもコストが1増えている
         """
-        current_cost = history[-1][0][1] if len(history) >= 1 and history[-1] else 0
+        current_cost = history[-1][0][1] if len(history) >= 1 and history[-1] else 999
         last_cost = history[-2][0][1] if len(history) >= 2 and history[-2] else 0
         return self.is_mark(letter) and current_cost - last_cost> 0
 
