@@ -129,12 +129,12 @@ key_sign_name_dict = {item: key for key, item in sign_name_key_dict.items()}
 
 
 def setup_list_window(window):
+    """リストウィンドウが作成されるタイミングで呼ばれる
+    """
     window.setFont("", settings["list_font_size"])
     window.skin_statusbar.show(False)
-    #window.setTitle("hoge")
-    #def mywidth(self):
-    #    return self._TextWindow__size_in_char[0]
-    #config_util.bind_method(window, "width", mywidth)
+    window.topmost(True)
+    window.select = 2
 
 
 def setup(keymap):
@@ -157,7 +157,6 @@ def setup(keymap):
             keymap.list_window.setItems(new_list)
             keymap.list_window.select = 2
             keymap.list_window.paint()
-            keymap.list_window.topmost(True)
 
     def next_select():
         if ime and ime.candidates and keymap.list_window:
@@ -250,7 +249,6 @@ def setup(keymap):
             item, mod = keymap.popListWindow(listers)
 
         keymap.delayedCall(popApplicationList, 0)
-        keymap.delayedCall(lambda x=0: set_messages([]), 1)
 
     def command_Initialize():
 
