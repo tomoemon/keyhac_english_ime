@@ -8,6 +8,9 @@ settings = {
         "list_candidates_num": 8,
         "list_width": 25,
         "is_append_space": True,
+        "key_pop_window": "C-Space",
+        "key_choose_next": "Tab",
+        "key_choose_prev": "S-Tab",
 }
 
 
@@ -138,16 +141,22 @@ def setup(keymap):
 
     def update_list():
         if keymap.list_window:
-            candidates_num = settings["list_candidates_num"]
             candidates = ime.candidates
             input_string = "".join(ime.inputs)
             new_list = ([input_string]
                         + [""]
-                        + ["{} - {:.1f}".format(word, dist) for word, dist in candidates]
-                        + [""] * (candidates_num - len(candidates)))
+                        + ["{} - {:.1f}".format(word, dist) for word, dist in candidates])
+            set_messages(new_list)
+
+    def set_messages(messages):
+        if keymap.list_window:
+            candidates_num = settings["list_candidates_num"]
+            messages = messages[:candidates_num + 2]
+            new_list = messages + [""] * (candidates_num - len(messages))
             keymap.list_window.setItems(new_list)
             keymap.list_window.select = 2
             keymap.list_window.paint()
+            keymap.list_window.topmost(True)
 
     def next_select():
         if ime and ime.candidates and keymap.list_window:
@@ -156,14 +165,14 @@ def setup(keymap):
                     max(len(ime.candidates) + 1, 2))
             keymap.list_window.paint()
         else:
-            input_key(["Tab"])
+            input_key([settings["key_choose_next"]])
 
     def back_select():
-        if ime and ime.candidates and keymap.list_window:
+        if ime and ime.inputs and keymap.list_window:
             keymap.list_window.select = max(keymap.list_window.select - 1, 2)
             keymap.list_window.paint()
         else:
-            input_key(["S-Tab"])
+            input_key([settings["key_choose_prev"]])
 
     def hook_input(key):
         if not ime:
@@ -236,10 +245,11 @@ def setup(keymap):
             listers = [
                 ("List", cblister_FixedPhrase(applications)),
             ]
+            # この window が閉じられるまでこの関数を抜けない
             item, mod = keymap.popListWindow(listers)
-            update_list()
 
         keymap.delayedCall(popApplicationList, 0)
+        keymap.delayedCall(lambda x=0: set_messages([]), 1)
 
     def command_Initialize():
 
@@ -250,7 +260,7 @@ def setup(keymap):
             ime = load_ime(max_candidates=settings["list_candidates_num"])
 
         def jobTestFinished(item):
-            print("Done.")
+            print("Completed")
             command_PopApplicationList()
 
         job_item = JobItem(jobTest, jobTestFinished)
@@ -268,8 +278,8 @@ def setup(keymap):
     keymap_global["Back"] = lambda x=0: hook_backspace()
     keymap_global["Enter"] = lambda x=0: hook_enter()
     keymap_global["Esc"] = lambda x=0: hook_escape()
-    keymap_global["Tab"] = lambda x=0: next_select()
-    keymap_global["S-Tab"] = lambda x=0: back_select()
+    keymap_global[settings["key_choose_next"]] = lambda x=0: next_select()
+    keymap_global[settings["key_choose_prev"]] = lambda x=0: back_select()
 
-    keymap_global["C-Space"] = command_PopApplicationList
+    keymap_global[settings["key_pop_window"]] = command_PopApplicationList
 
