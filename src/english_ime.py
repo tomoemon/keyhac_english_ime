@@ -116,8 +116,8 @@ class EnglishIme:
         return self.is_mark(letter) and current_cost - last_cost> 0
 
 
-def load_ime(max_candidates):
-    ime = EnglishIme("tw_eijiro_dictionary_words.txt", max_candidates=max_candidates)
+def load_ime(dictionary_name, max_candidates):
+    ime = EnglishIme(dictionary_name, max_candidates=max_candidates)
     ime.damerau_trie_node.expand_empty_nodes(2)
     return ime
 

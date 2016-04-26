@@ -4,6 +4,7 @@ from .english_ime import load_ime
 
 
 settings = {
+        "dictionary_file": "tw_eijiro_dictionary_words.txt",
         "list_font_size": 20,
         "list_candidates_num": 8,
         "list_width": 25,
@@ -257,7 +258,7 @@ def setup(keymap):
             nonlocal ime
 
             print("Loading dictionary...")
-            ime = load_ime(max_candidates=settings["list_candidates_num"])
+            ime = load_ime(settings["dictionary_file"], max_candidates=settings["list_candidates_num"])
 
         def jobTestFinished(item):
             print("Completed")
