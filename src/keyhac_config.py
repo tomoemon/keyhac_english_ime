@@ -12,6 +12,10 @@ settings = {
         "key_pop_window": "C-Space",
         "key_choose_next": "Tab",
         "key_choose_prev": "S-Tab",
+        "key_fix_word_with_space": "Space",
+        "key_fix_word_with_enter": "Enter",
+        "key_use_original_input_with_space": "S-Space",
+        "key_use_original_input_with_enter": "S-Enter",
 }
 
 
@@ -88,8 +92,10 @@ sign_name_key_dict = {
     #"Caret": "^",
     # 特殊キー
     "Space": "Space",
+    "S-Space": "S-Space",
     "Back": "Back",
     "Enter": "Enter",
+    "S-Enter": "S-Enter",
     "Esc": "Esc",
     "Tab": "Tab",
     "S-Tab": "S-Tab",
@@ -185,27 +191,25 @@ def setup(keymap):
         update_candidates()
 
     def input_candidate(inputs, candidates, end):
-        if not inputs:
-            input_key(end)
-        elif candidates:
+        if candidates:
             word, level = candidates[keymap.list_window.select - 2 if keymap.list_window else 0]
             input_key(list(word) + (end if settings["is_append_space"] else []))
         else:
-            input_key(list(ime.inputs) + (end if settings["is_append_space"] else []))
+            input_key(list(inputs) + (end if settings["is_append_space"] else []))
 
-    def hook_space():
-        if not ime:
-            input_key(["Space"])
+    def hook_fix_word(hook_key, end):
+        if not ime or not ime.inputs:
+            input_key(hook_key)
             return
-        input_candidate(ime.inputs, ime.candidates, ["Space"])
+        input_candidate(ime.inputs, ime.candidates, end)
         ime.reset()
         update_candidates()
 
-    def hook_enter():
-        if not ime:
-            input_key(["Enter"])
+    def hook_input_original(hook_key, end):
+        if not ime or not ime.inputs:
+            input_key(hook_key)
             return
-        input_candidate(ime.inputs, ime.candidates, ["Enter"])
+        input_candidate(ime.inputs, [], end)
         ime.reset()
         update_candidates()
 
@@ -271,9 +275,11 @@ def setup(keymap):
         keymap_global[key_name_on_keyhac] = lambda c=char: hook_input(c)
 
     # special keys
-    keymap_global["Space"] = lambda x=0: hook_space()
+    keymap_global[settings["key_fix_word_with_space"]] = lambda x=0: hook_fix_word([settings["key_fix_word_with_space"]], ["Space"])
+    keymap_global[settings["key_fix_word_with_enter"]] = lambda x=0: hook_fix_word([settings["key_fix_word_with_enter"]], ["Enter"])
+    keymap_global[settings["key_use_original_input_with_space"]] = lambda x=0: hook_input_original([settings["key_use_original_input_with_space"]], ["Space"])
+    keymap_global[settings["key_use_original_input_with_enter"]] = lambda x=0: hook_input_original([settings["key_use_original_input_with_enter"]], ["Enter"])
     keymap_global["Back"] = lambda x=0: hook_backspace()
-    keymap_global["Enter"] = lambda x=0: hook_enter()
     keymap_global["Esc"] = lambda x=0: hook_escape()
     keymap_global[settings["key_choose_next"]] = lambda x=0: next_select()
     keymap_global[settings["key_choose_prev"]] = lambda x=0: back_select()
