@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 from operator import itemgetter
+from collections import OrderedDict
 import pickle
 
 
-class DamerauTrieNode(dict):
+class DamerauTrieNode(OrderedDict):
     def __init__(self, row_letter="", ancestors=[], da={}):
         self.word = ""
         self.row_letter = row_letter
