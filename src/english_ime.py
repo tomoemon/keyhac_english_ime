@@ -48,7 +48,7 @@ class EnglishIme:
         result = []
         for word, dist in self.candidates_history[-1]:
             word_as_list = list(word)
-            if big_letter_index > 0:
+            if big_letter_index >= 0:
                 word_as_list[0] = word_as_list[0].upper()
             for i, l in self.mark_inputs:
                 word_as_list.insert(i, l)
@@ -85,12 +85,12 @@ class EnglishIme:
             result, nodes = [], []
         else:
             result, nodes = self.damerau_trie_node.search(letter, max_distance, expand, self._last_nodes)
-        result = result[:self.max_candidates]
+
         self.inputs.append(letter)
-        self.candidates_history.append(result)
+        self.candidates_history.append(result[:self.max_candidates])
         self.nodes_history.append(nodes)
 
-        if self.should_input_as_mark(letter, self.candidates_history):
+        if self.should_input_as_mark(letter, result, self.candidates_history):
             index = len(self.inputs) - 1
             self.mark_inputs.append((index, letter))
             if len(self.candidates_history) >= 2:
@@ -104,16 +104,18 @@ class EnglishIme:
 
         return self._current_candidates, self._last_nodes
 
-    def should_input_as_mark(self, letter, history):
+    def should_input_as_mark(self, letter, current_candidates, history):
         """
         "hoge" のように辞書にない記号が前後に入った場合に、補完候補を消さないようにする
         判定条件は
         ・letter が記号である
         ・直前の最良候補よりもコストが1増えている
+        ・今回の候補の中に入力した記号を含むものがない
         """
         current_cost = history[-1][0][1] if len(history) >= 1 and history[-1] else 999
         last_cost = history[-2][0][1] if len(history) >= 2 and history[-2] else 0
-        return self.is_mark(letter) and current_cost - last_cost> 0
+        is_include_letter = any([letter in word for word, level in current_candidates])
+        return self.is_mark(letter) and current_cost - last_cost> 0 and not is_include_letter
 
 
 def load_ime(dictionary_name, max_candidates):
