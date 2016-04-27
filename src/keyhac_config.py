@@ -4,7 +4,7 @@ from .english_ime import load_ime
 
 
 settings = {
-        "dictionary_file": "tw_eijiro_dictionary_words.txt",
+        "dictionary_file": "words.txt",
         "list_font_size": 20,
         "list_candidates_num": 8,
         "list_width": 25,
